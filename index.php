@@ -24,13 +24,13 @@
         $arr = explode('<td', $arr[1]);
 
         $contenido = $arr[0];
-        print_r($contenido);exit;
+
 
         //Una vez adentro del div de nuestro interes, se observa que todos los enlaces que se necesitan
         //Comienzan por detalle_noticia.php?id=
-        $enlaces = explode("detalle_noticia.php?id=", $contenido);
+        $enlaces = explode("http://www.apuestas-deportivas.es/pronostico/", $contenido);
 
-        //Se hace un explode para obtener todos los codigos html que comiencen justo despues de detalle_noticia.php?id=
+        //Se hace un explode para obtener todos los codigos html que comiencen justo despues de http://www.apuestas-deportivas.es/pronostico/
   
         $idNoticias = array();
         //Se realiza un ciclo for para obtener todos los ids de las noticias
@@ -43,8 +43,10 @@
 			$id = substr($cadena, 0, $posicionFinal);
 			//Se comienca en $i-1 porque el primer link que devuelve esta web siempre es vacio y se requieren 
 			//son los numeros de los id
-			$idNoticias[$i-1] = $id;
+            if($i!=(count($enlaces)-1))$idNoticias[$i-1] = $id;
 			        }
+        var_dump($idNoticias);exit;
+
         /*
         Para el listado de noticias de sector del juego por cada cuadricula hay 3 enlaces,
         uno en el texto, otro en la imagen y otro en el titulo, por ende despues de buscar los links
@@ -68,7 +70,7 @@
         foreach ($idNoticias as $key => $value) {
         	ini_set('max_execution_time', 300);
         	// Tener en cuenta que no es igual la ruta lista_noticias a detalle_noticia
-        	$urlNoticia = "http://sectordeljuego.com/detalle_noticia.php?id=".$value;
+        	$urlNoticia = "http://www.apuestas-deportivas.es/pronostico/".$value;
         	
             /*A partir de este punto, hay que analizar de nuevo la estructura del codigo
         	De una noticia en particular, en el caso de noticias hay que extraer 3 elementos siempre
@@ -79,13 +81,18 @@
         	*/        
             //Con la funcion file_get_contents se obtiene todo el html que devuelve la web señalada
         	$html = file_get_contents($urlNoticia);
-        	$busqueda = '<div id="NOTICIA_DETALLE">';
-        	$html = explode($busqueda, $html);
-        	$html = $html[1];
+            $busqueda = '<div class="content">';
+            $html = explode($str, $html);
+            $html = explode('<p class="postmetadata">', $html[1]);
+            $html = $html[0];
+
+            var_dump($html);
+            exit;
+
 
         	//Se comienza a extraer los datos de interes, se comienza con el TITULO, el cual se almacena en 
         	//<div id="TITULAR_DETALLE">
-        	$busqueda = '<div id="TITULAR_DETALLE">';
+            $busqueda = '<div id="TITULAR_DETALLE">';
             $titulo = explode($busqueda, $html);
             $titulo = explode('</div', $titulo[1]);
 
