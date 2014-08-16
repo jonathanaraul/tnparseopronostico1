@@ -45,7 +45,7 @@
 			//son los numeros de los id
             if($i!=(count($enlaces)-1))$idNoticias[$i-1] = $id;
 			        }
-        var_dump($idNoticias);exit;
+
 
         /*
         Para el listado de noticias de sector del juego por cada cuadricula hay 3 enlaces,
@@ -54,7 +54,7 @@
         los duplicados, pero conserva las antiguas claves, por esto se debe usar foreach y no un for normal
         */
         $idNoticias = array_unique($idNoticias); 
-
+        //var_dump($idNoticias);exit;
         /*
         Se procede a recorrer cada uno de los enlaces para extraer la data y almacenarla en la base de datos
         Se busca recorrer el listado de urls que se genero ejemplo:
@@ -67,6 +67,7 @@
         Y asi sucesivamente, se ira recorriendo y obteniendo los textos y descargando una imagen por 
         cada articulo
         */
+
         foreach ($idNoticias as $key => $value) {
         	ini_set('max_execution_time', 300);
         	// Tener en cuenta que no es igual la ruta lista_noticias a detalle_noticia
@@ -86,26 +87,30 @@
             $html = explode('<p class="postmetadata">', $html[1]);
             $html = $html[0];
 
-            var_dump($html);
-            exit;
+
 
 
         	//Se comienza a extraer los datos de interes, se comienza con el TITULO, el cual se almacena en 
         	//<div id="TITULAR_DETALLE">
-            $busqueda = '<div id="TITULAR_DETALLE">';
+            $busqueda = '<h1>';
             $titulo = explode($busqueda, $html);
-            $titulo = explode('</div', $titulo[1]);
+            $titulo = explode('</h1>', $titulo[1]);
+            $titulo = $titulo[0];
+
+
+       
 
             $imagen = $titulo[1];//Se almacenan varias lineas de codigo entre ellas la imagen <img>
             $titulo = $titulo[0];//Se almacena unicamente el titulo por ende estaria listo para guardarse
 
             //Se procede a procesar la IMAGEN
             $busqueda = 'src="';
-            $imagen = explode($busqueda, $imagen);
+            $imagen = explode($busqueda, $html);
             $imagen = explode('"', $imagen[1]);
             $imagen = $imagen[0];
 
-            $urlImagen = 'http://sectordeljuego.com/'.$imagen;
+
+            $urlImagen = $imagen;
             $extension = explode(".", $urlImagen);
             $extension = $extension[count($extension) - 1];
             //$path = $this -> container -> getParameter('kernel.root_dir') . '/../web/' . $this -> getUploadDir();
@@ -113,7 +118,7 @@
 
             ini_set('max_execution_time', 300);
             $ch = curl_init($urlImagen);
-            $fp = fopen(sprintf('%s/%s.%s', 'C:/wamp/www/tareaEspecial/uploads', $nombreImagen, $extension), 'wb');
+            $fp = fopen(sprintf('%s/%s.%s', 'C:/wamp/www/tnparseopronostico1/uploads', $nombreImagen, $extension), 'wb');
             curl_setopt($ch, CURLOPT_FILE, $fp);
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_exec($ch);
@@ -131,10 +136,56 @@
             $contadorImagenes++;
 		
             //Se procede a buscar el contenido el cual se encuentra en <div class="CUERPO_DETALLE">
-        	$busqueda = '<div class="CUERPO_DETALLE">';
+        	$busqueda = '<div class="entry">';
             $contenido = explode($busqueda, $html);
-            $contenido = explode('</div', $contenido[1]);
+            $contenido = explode('<p class="postmetadata">', $contenido[1]);
             $contenido = $contenido[0];
+
+            $busqueda = 'Evento:';
+            $evento = explode($busqueda, $contenido);
+            $evento = explode('Fecha:', $evento[1]);
+            $fecha = $evento[1];
+            $evento = $evento[0];
+
+            $busqueda = '<strong';
+            $fecha = explode($busqueda, $fecha);
+            $fecha = $fecha[0];
+            
+            
+            $pronostico = explode('Pronóstico de apuestas:', $contenido);
+            $pronostico = $pronostico[1];
+            $busqueda = '<br';
+            $pronostico = explode($busqueda, $pronostico);
+            $cuota = $pronostico[1];
+            $pronostico= $pronostico[0];
+
+            $cuota = explode('Cuota:', $cuota);
+            $cuota = $cuota[1];
+            
+            $busqueda = 'Stake: ';
+            $skate = explode($busqueda, $contenido);
+            $skate = explode('Canti', $skate[1]);
+            $casaApuestas = $skate[1];
+            $skate = $skate[0];
+
+            $busqueda = 'strong>';
+            $casaApuestas = explode($busqueda, $casaApuestas);
+            $casaApuestas = $casaApuestas[1];
+            $busqueda = '<';
+            $casaApuestas = explode($busqueda, $casaApuestas);    
+            $casaApuestas = $casaApuestas[0];        
+
+            echo'<hr>Pronostico='.$contadorPronosticos;
+            echo'<br>El titulo es '.$titulo;
+            echo'<br>Imagen '.$imagen;
+            echo'<br>la fecha es '.$fecha;
+            echo'<br>Evento '.$evento;
+            echo'<br>Fecha '.$fecha;
+            echo'<br>Pronostico '.$pronostico;
+            echo'<br>cuota '.$cuota;
+            echo'<br>skate '.$skate;
+            echo'<br>casaApuestas '.$casaApuestas;
+            echo'<hr>';
 
             //Se obtienen los datos basicos relacionados con la noticia
             //$usuario = $em -> getRepository('ProjectUserBundle:User') -> find(1);
@@ -151,7 +202,7 @@
             $em -> flush();
 */
 
-		    $contadorNoticias++;
+		    $contadorPronosticos++;
 
         }
 
