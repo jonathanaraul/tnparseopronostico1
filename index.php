@@ -12,18 +12,19 @@
 		$contadorNoticias = 0;
         
         //Ruta del listado de noticias de la web a analizar
-		$url = 'http://sectordeljuego.com/lista_noticias.php';
+		$url = 'http://www.apuestas-deportivas.es/pronostico/';
 
         //Con la funcion file_get_contents se obtiene todo el html que devuelve la web señalada
         $htm = file_get_contents($url);
         //Luego de estudiar el codigo fuente de la web, se descubre que todos los elementos de interes
         //Se encuentran dentro del div LATERAL_IZQUIERDO_DETALLE, por ende se hace un explode para poder
         //Obtener los argumentos que esten antes o despues (adentro del div)
-        $str = '<div id="LATERAL_IZQUIERDO_DETALLE" class="LATERAL_IZQUIERDO_DETALLE">';
+        $str = '<div class="content">';
         $arr = explode($str, $htm);
-        $arr = explode('</div', $arr[1]);
+        $arr = explode('<td', $arr[1]);
 
-        $contenido = $arr[1];
+        $contenido = $arr[0];
+        print_r($contenido);exit;
 
         //Una vez adentro del div de nuestro interes, se observa que todos los enlaces que se necesitan
         //Comienzan por detalle_noticia.php?id=
